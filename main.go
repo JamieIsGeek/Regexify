@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
-	"regexp"
+	"os"
 	"unicode"
 )
 
@@ -84,14 +86,31 @@ func getLetter(char rune) string {
 }
 
 func main() {
-	word := "test"
-	regexPattern := generateRegex(word)
+	file, err := os.Open("input.txt")
 
-	// Use the generated regex pattern
-	matchString := "7357"
-	match := regexp.MustCompile(regexPattern).MatchString(matchString)
+	if err != nil {
+		errors.New(err.Error())
+		os.Exit(1)
+	}
 
-	fmt.Printf("Original word: %s\n", word)
-	fmt.Printf("Generated regex: %s\n", regexPattern)
-	fmt.Printf("Does '%s' match the regex? %t\n", matchString, match)
+	scanner := bufio.NewScanner(file)
+
+	output, err := os.Create("output.txt")
+
+	if err != nil {
+		errors.New(err.Error())
+		os.Exit(1)
+	}
+
+	for scanner.Scan() {
+		word := scanner.Text()
+		regexPattern := generateRegex(word)
+
+		output.WriteString(fmt.Sprintf("%s\n", regexPattern))
+	}
+
+	output.Close()
+	file.Close()
+
+	fmt.Printf("Done, check output.txt!")
 }
